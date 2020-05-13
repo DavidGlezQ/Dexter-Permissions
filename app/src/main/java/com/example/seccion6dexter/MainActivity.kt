@@ -11,7 +11,6 @@ import com.karumi.dexter.listener.PermissionGrantedResponse
 import com.karumi.dexter.listener.PermissionRequest
 import com.karumi.dexter.listener.single.PermissionListener
 import kotlinx.android.synthetic.main.activity_main.*
-
 //Para poder poner el tema en oscuro:
 //1.-Lo primero es cambiar el colorAcent por #009688 em el archivo colors.
 //2.-Cambiar en el archivo styles parent="android:Theme.Material" para poder hacer uso del color.
