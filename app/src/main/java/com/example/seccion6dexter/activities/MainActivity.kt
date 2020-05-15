@@ -40,17 +40,19 @@ class MainActivity : Activity() {
         buttonAudio.setOnClickListener{checkAudioPermission()}
         buttonAll.setOnClickListener{checkAllPermission()}
     }
-    //Permisos.
+    /*Permisos*/
     //Permiso permiso con composite, cuadro de dialogo.
-    //private fun checkCameraPermission() = setCameraPermissionHandlerWithDialog()
+    private fun checkCameraPermission() = setPermissionHandlerWithDialog()
     //Permiso permiso con composite, SnackBar.
-    private fun checkCameraPermission() = setCameraPermissionHandlerWithSnackBar()
-    //private fun checkCameraPermission() = setPermissionHandler(Manifest.permission.CAMERA, textViewCamera)
-    private fun checkContactsPermission() = setPermissionHandler(Manifest.permission.READ_CONTACTS, textViewContacts)
+    private fun checkContactsPermission() = setPermissionHandlerWithSnackBar()
+    //Permiso del audio con Dexter.
     private fun checkAudioPermission() = setPermissionHandler(Manifest.permission.RECORD_AUDIO, textViewAudio)
+
+
+    /*Checar todos los permisos en lista con un solo boton.*/
     private fun checkAllPermission(){
         Dexter.withContext(this)
-            .withPermissions(Manifest.permission.CAMERA, Manifest.permission.RECORD_AUDIO, Manifest.permission.RECORD_AUDIO)
+            .withPermissions(Manifest.permission.CAMERA, Manifest.permission.READ_CONTACTS, Manifest.permission.RECORD_AUDIO)
             .withListener(object: MultiplePermissionsListener{
                 override fun onPermissionsChecked(report: MultiplePermissionsReport?) {
                     //En caso de ser null no hace nada de lo que esta dentro
@@ -58,7 +60,7 @@ class MainActivity : Activity() {
                         for (permission in report.grantedPermissionResponses){
                             when(permission.permissionName){
                                 Manifest.permission.CAMERA -> setPermissionStatus(textViewCamera, PermissionStatusEnum.GRANTED)
-                                Manifest.permission.READ_CONTACTS -> setPermissionStatus(textViewAudio, PermissionStatusEnum.GRANTED)
+                                Manifest.permission.READ_CONTACTS -> setPermissionStatus(textViewContacts, PermissionStatusEnum.GRANTED)
                                 Manifest.permission.RECORD_AUDIO -> setPermissionStatus(textViewAudio, PermissionStatusEnum.GRANTED)
                             }
                         }
@@ -96,7 +98,7 @@ class MainActivity : Activity() {
 
             }).check()
     }
-    //Handler para los permisos (todos los permisos).
+    /*Handler para los permisos (todos los permisos), es decir para aplicar permisos a un boton*/
     private fun setPermissionHandler(permission: String, textView: TextView){
         //Sintaxis que implementa Dexter.
         Dexter.withContext(this)
@@ -123,7 +125,8 @@ class MainActivity : Activity() {
                 }
             }).check()
     }
-    //Funcion para los textos.
+
+    /*Funcion para el cambio de color para los textos.*/
     private fun setPermissionStatus(textView: TextView, status: PermissionStatusEnum){
         when (status){
             PermissionStatusEnum.GRANTED -> {
@@ -143,8 +146,11 @@ class MainActivity : Activity() {
             }
         }
     }
+
+
+    /*Composite Dexter*/
     //Mismos permisos pero con composite, cuadro de dialogo pero si se deniega manda una alerta al usuario.
-    private fun setCameraPermissionHandlerWithDialog(){
+    private fun setPermissionHandlerWithDialog(){
         val dialogPermissionListener = DialogOnDeniedPermissionListener.Builder
             .withContext(this)
             .withTitle("Camera Permission")
@@ -178,17 +184,17 @@ class MainActivity : Activity() {
             .check()
     }
     //Mismos permisos pero con composite, SnackBar pero si se deniega manda una alerta al usuario.
-    private fun setCameraPermissionHandlerWithSnackBar(){
+    private fun setPermissionHandlerWithSnackBar(){
         val permission = object : PermissionListener {
             override fun onPermissionGranted(response: PermissionGrantedResponse?) {
-                setPermissionStatus(textViewCamera, PermissionStatusEnum.GRANTED)
+                setPermissionStatus(textViewContacts, PermissionStatusEnum.GRANTED)
             }
 
             override fun onPermissionDenied(response: PermissionDeniedResponse) {
                 if (response.isPermanentlyDenied){
-                    setPermissionStatus(textViewCamera, PermissionStatusEnum.PERMANENTLY_DENIED)
+                    setPermissionStatus(textViewContacts, PermissionStatusEnum.PERMANENTLY_DENIED)
                 }else{
-                    setPermissionStatus(textViewCamera, PermissionStatusEnum.DENIED)
+                    setPermissionStatus(textViewContacts, PermissionStatusEnum.DENIED)
                 }
             }
 
@@ -198,7 +204,7 @@ class MainActivity : Activity() {
         }
 
         val snackBarPermissionsListener = SnackbarOnDeniedPermissionListener.Builder
-            .with(root, "Camera is needed to take pictures")
+            .with(root, "Contacts is needed to read your contacts")
             .withOpenSettingsButton("Setting")
             .withCallback(object : Snackbar.Callback(){
                 override fun onShown(sb: Snackbar?) {
@@ -212,7 +218,7 @@ class MainActivity : Activity() {
         val composite = CompositePermissionListener(permission, snackBarPermissionsListener)
 
         Dexter.withContext(this)
-            .withPermission(Manifest.permission.CAMERA)
+            .withPermission(Manifest.permission.READ_CONTACTS)
             .withListener(composite)
             .check()
     }
